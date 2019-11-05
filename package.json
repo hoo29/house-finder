@@ -2,14 +2,27 @@
   "name": "house-finder",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoo29/house-finder.git"
+  },
   "dependencies": {
+    "@material-ui/core": "^4.5.2",
     "@types/jest": "24.0.20",
     "@types/node": "12.11.7",
     "@types/react": "16.9.11",
     "@types/react-dom": "16.9.3",
+    "@types/request": "^2.48.3",
+    "@types/request-promise-native": "^1.0.17",
+    "bingmaps": "^2.0.3",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.1.0",
     "typescript": "3.6.4"
   },
   "scripts": {
