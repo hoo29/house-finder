@@ -11,9 +11,9 @@ phases:
     commands:
       - npm run build
 artifacts:
-  type: zip
+  base-directory: build
   files:
-    - build/**/*
+    - '**/*'
 cache:
   paths:
     - node_modules/**/*
