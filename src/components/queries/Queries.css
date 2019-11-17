@@ -1,0 +1,11 @@
+.Query-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.Query-item {
+    padding-left: 1vw;
+    /* max-width: 10vw; */
+}
