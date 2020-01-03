@@ -5,6 +5,7 @@ import {
     IsochroneRequest,
     TRAVEL_MODES,
     OPTIMIZE_MODES,
+    LocationRequest,
 } from './maps.types';
 import { api } from '../api/api.service';
 
@@ -40,7 +41,7 @@ export const clearMap = () => {
 
 export const insertLayer = (layer: any) => {
     if (typeof map === 'undefined') {
-        throw new Error('tried to clear map before it had loaded');
+        throw new Error('tried to insert layer before map had loaded');
     }
 
     map.layers.insert(layer);
@@ -48,13 +49,17 @@ export const insertLayer = (layer: any) => {
 
 export const removeLayer = (layer: any) => {
     if (typeof map === 'undefined') {
-        throw new Error('tried to clear map before it had loaded');
+        throw new Error('tried to remove layer before map had loaded');
     }
 
     map.layers.remove(layer);
 };
 
-export const newQuery = async (body: IsochroneUserRequest) => {
+export const newLocQuery = async (body: LocationRequest) => {
+    return api('post', `${REACT_APP_BACKEND_API}/loc`, { json: true, body });
+};
+
+export const newIsoQuery = async (body: IsochroneUserRequest) => {
     const extraState: IsochroneRequest = Object.assign(
         {},
         {
@@ -64,7 +69,7 @@ export const newQuery = async (body: IsochroneUserRequest) => {
         },
         body
     );
-    return api('post', REACT_APP_BACKEND_API, { json: true, body: extraState });
+    return api('post', `${REACT_APP_BACKEND_API}/isochrone`, { json: true, body: extraState });
 };
 
 export const createPolygons = (polyData: Array<{ coordinates: number[][][] }>, colour: string) => {

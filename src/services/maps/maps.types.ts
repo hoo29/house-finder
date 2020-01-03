@@ -20,13 +20,16 @@ export enum DISTANCE_UNITS {
     km = 'km',
 }
 
+export interface LocationRequest {
+    postcode: string;
+}
+
 export interface IsochroneUserRequest {
     waypoint: string;
     maxTime?: number;
     maxDistance?: number;
     dateTime?: string;
     travelMode: TRAVEL_MODES;
-    cache: boolean;
 }
 
 export interface IsochroneRequest extends IsochroneUserRequest {

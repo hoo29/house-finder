@@ -29,6 +29,13 @@ const App: React.FC = () => {
                     <Maps setMapsLoaded={setMapsLoaded} />
                 </div>
             </div>
+            <img
+                src="https://www.zoopla.co.uk/static/images/mashery/powered-by-zoopla-150x73.png"
+                width="150"
+                height="73"
+                title="Property information powered by Zoopla"
+                alt="Property information powered by Zoopla"
+            />
         </div>
     );
 };

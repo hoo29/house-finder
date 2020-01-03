@@ -3,15 +3,15 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { newQuery, createPolygons, newLayer, insertLayer } from '../../services/maps/maps.service';
+import { newIsoQuery, createPolygons, newLayer, insertLayer, newLocQuery } from '../../services/maps/maps.service';
 import { IsochroneUserRequest, TRAVEL_MODES } from '../../services/maps/maps.types';
 
 import './Queries.css';
+
+const spinnerWidth = 35;
 
 const Queries: React.FC<{ colour: string; ind: string }> = props => {
     const [loaded, setLoaded] = useState(true);
@@ -21,7 +21,6 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
         maxDistance: 0,
         dateTime: new Date().toISOString().slice(0, -8),
         travelMode: TRAVEL_MODES.transit,
-        cache: false,
     });
 
     const [layer, setLayer] = useState();
@@ -33,17 +32,19 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
     const submitQuery: FormEventHandler = event => {
         event.preventDefault();
         setLoaded(false);
-        const refinedState: IsochroneUserRequest = {
-            waypoint: state.waypoint,
-            maxTime: state.travelMode === TRAVEL_MODES.transit ? state.maxTime : undefined,
-            maxDistance: state.travelMode !== TRAVEL_MODES.transit ? state.maxDistance : undefined,
-            dateTime: state.dateTime,
-            travelMode: state.travelMode,
-            cache: state.cache,
-        };
-        newQuery(refinedState)
+        layer.clear();
+        newLocQuery({ postcode: state.waypoint })
+            .then(res =>
+                newIsoQuery({
+                    waypoint: `${res.point[0]},${res.point[1]}`,
+                    maxTime: state.travelMode === TRAVEL_MODES.transit ? state.maxTime : undefined,
+                    maxDistance: state.travelMode !== TRAVEL_MODES.transit ? state.maxDistance : undefined,
+                    dateTime: state.dateTime,
+                    travelMode: state.travelMode,
+                })
+            )
             .then(res => {
-                const polygons = createPolygons(res, props.colour);
+                const polygons = createPolygons(res.polygonResults, props.colour);
                 layer.add(polygons);
                 insertLayer(layer);
                 setLoaded(true);
@@ -70,6 +71,7 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
     };
 
     const spinnerVis: React.CSSProperties = {
+        minWidth: spinnerWidth + 20,
         visibility: !loaded ? 'visible' : 'hidden',
     };
 
@@ -78,21 +80,21 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
             disabled={!loaded}
             key="waypoint"
             required={true}
-            id="waypoint"
+            id={`waypoint_${props.ind}`}
             label="waypoint"
             autoComplete="postal-code"
             onChange={handleChange('waypoint', false)}
         />,
         <FormControl disabled={!loaded} key="travelMode" required={true}>
-            <InputLabel htmlFor="mode-select">Mode</InputLabel>
+            <InputLabel htmlFor={`modeSelect_${props.ind}`}>Mode</InputLabel>
             <NativeSelect
                 inputProps={{
                     name: 'Mode',
-                    id: 'mode-select',
+                    id: `modeSelect_${props.ind}`,
                 }}
                 value={state.travelMode}
                 onChange={handleChange('travelMode', false)}
-                id="mode-select"
+                id={`modeSelect_${props.ind}`}
             >
                 {Object.values(TRAVEL_MODES).map((val, ind) => (
                     <option value={val} key={ind}>
@@ -105,7 +107,7 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
             disabled={state.travelMode !== TRAVEL_MODES.transit || !loaded}
             key="maxTime"
             required={true}
-            id="maxTime"
+            id={`maxTime_${props.ind}`}
             label="max time (min)"
             autoComplete="off"
             onChange={handleChange('maxTime', false)}
@@ -114,7 +116,7 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
             disabled={state.travelMode === TRAVEL_MODES.transit || !loaded}
             key="maxDistance"
             required={true}
-            id="maxDistance"
+            id={`maxDistance_${props.ind}`}
             label="max dist (mi)"
             autoComplete="off"
             onChange={handleChange('maxDistance', false)}
@@ -123,7 +125,7 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
             disabled={!loaded}
             key="dateTime"
             required={true}
-            id="dateTime"
+            id={`dateTime_${props.ind}`}
             label="time"
             type="datetime-local"
             defaultValue={state.dateTime}
@@ -132,19 +134,19 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
             }}
             onChange={handleChange('dateTime', false)}
         />,
-        <FormControlLabel
-            key="cache"
-            control={
-                <Checkbox
-                    disabled={!loaded}
-                    checked={state.cache}
-                    onChange={handleChange('cache', true)}
-                    value="cache"
-                    color="primary"
-                />
-            }
-            label="cache"
-        />,
+        // <FormControlLabel
+        //     key="cache"
+        //     control={
+        //         <Checkbox
+        //             disabled={!loaded}
+        //             checked={state.cache}
+        //             onChange={handleChange('cache', true)}
+        //             value="cache"
+        //             color="primary"
+        //         />
+        //     }
+        //     label="cache"
+        // />,
         <Button disabled={!loaded} type="submit" key="submit" variant="contained" color="primary">
             Go
         </Button>,
@@ -165,7 +167,7 @@ const Queries: React.FC<{ colour: string; ind: string }> = props => {
                 </Button>
             </div>
             <div className="Query-item" style={spinnerVis} key="spinner">
-                <CircularProgress color="secondary" size={35} />
+                <CircularProgress color="secondary" size={spinnerWidth} />
             </div>
         </div>
     );
